@@ -1,0 +1,30 @@
+# 워크플로우(작업) 이름
+name: GitOps S3 CICD Pipeline
+# 1. 트리거 설정: 브랜치 정의
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest    # 실제 작업 주체
+
+    # 작업 절차
+    steps:
+    - name: 소스코드 전송
+      uses: actions/checkout@v4
+
+    - name: AWS 자격 증명 설정
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key-id: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_region: ${{ secrets.AWS_REGION }}
+      
+    - name: S3 정적웹사이트로 배포
+      run: |
+        # 전체 동기화
+        aws s3 sync html/ s3://ian-s3-website-bucket/ --delete --acl public-read
+
+
